@@ -30,11 +30,12 @@
     </section>
 
     <div id="loading">
-        <div class="equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
         <p>Loading High-Fidelity Audio...</p>
     </div>
 
-    <div class="feed-container" id="mix-feed"></div>
+    <div class="feed-container" id="mix-feed">
+        </div>
 
     <section id="events" class="events-section">
         <div class="booking-content">
@@ -50,37 +51,41 @@
         <div class="booking-content">
             <h2 class="section-title">Book The <span class="highlight">Supreme</span></h2>
             <p>Available for Club Gigs, Private Events, and Festivals.</p>
+            
             <form class="booking-form" id="bookingForm">
-                <div class="form-group"><input type="text" id="clientName" placeholder="Your Name / Promoter Name" required></div>
-                <div class="form-group"><input type="email" id="clientEmail" placeholder="Email Address" required></div>
+                <div class="form-group">
+                    <input type="text" id="clientName" placeholder="Your Name / Promoter Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="clientEmail" placeholder="Email Address" required>
+                </div>
                 <div class="form-group">
                     <select id="eventType" required>
                         <option value="" disabled selected>Select Event Type</option>
                         <option value="club">Club / Lounge</option>
                         <option value="festival">Festival / Concert</option>
                         <option value="private">Private Party</option>
-                        <option value="corporate">Corporate Event</option>
                     </select>
                 </div>
-                <div class="form-group"><textarea id="eventDetails" placeholder="Event Details (Date, Location, Vibe)" rows="4" required></textarea></div>
+                <div class="form-group">
+                    <textarea id="eventDetails" placeholder="Event Details (Date, Location, Vibe)" rows="4" required></textarea>
+                </div>
                 <button type="submit" class="cta-btn submit-btn">Send Booking Request</button>
             </form>
         </div>
     </section>
 
-    <footer class="site-footer">
+    <footer>
         <div class="footer-content">
-            <div class="footer-brand">
-                <img src="logo.jpg" alt="DJ SKID THE SUPREME" class="footer-logo">
-                <p class="brand-tagline">The Supreme Sound Experience</p>
+            <h3>DJ SKID SUPREME</h3>
+            <div class="social-icons">
+                <a href="https://www.facebook.com/djskidsupreme" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/djskidsupreme" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://www.tiktok.com/@djskidsupreme" target="_blank"><i class="fab fa-tiktok"></i></a>
+                <a href="https://hearthis.at/djskidsupreme/" target="_blank"><i class="fas fa-compact-disc"></i></a>
+                <a href="https://www.youtube.com/@djskidsupreme" target="_blank"><i class="fab fa-youtube"></i></a>
             </div>
-            <div class="social-hub">
-                <a href="https://tiktok.com/@djskidsupreme" target="_blank" class="social-icon tiktok"><i class="fab fa-tiktok"></i><span class="tooltip">TikTok</span></a>
-                <a href="https://instagram.com/djskidsupreme" target="_blank" class="social-icon insta"><i class="fab fa-instagram"></i><span class="tooltip">Instagram</span></a>
-                <a href="https://hearthis.at/djskidsupreme/" target="_blank" class="social-icon hearthis"><i class="fas fa-compact-disc"></i><span class="tooltip">Hearthis.at</span></a>
-                <a href="mailto:skidgnius@gmail.com" class="social-icon email"><i class="fas fa-envelope"></i><span class="tooltip">Email Me</span></a>
-            </div>
-            <div class="copyright"><p>&copy; 2025 DJ SKID THE SUPREME. All Rights Reserved.</p></div>
+            <p>&copy; 2025 DJ Skid Supreme. All Rights Reserved.</p>
         </div>
     </footer>
 
@@ -88,20 +93,28 @@
         <div class="player-content">
             <div class="track-info">
                 <img id="player-img" src="" alt="Cover">
-                <div class="text-group"><h4 id="player-title">Select a Mix</h4><p id="player-desc">DJ Skid The Supreme</p></div>
+                <div class="text-group">
+                    <h4 id="player-title">Select a Mix</h4>
+                    <p id="player-desc">DJ Skid The Supreme</p>
+                </div>
             </div>
+
             <div class="controls">
                 <button id="prevBtn"><i class="fas fa-step-backward"></i></button>
                 <button id="playBtn" class="play-circle"><i class="fas fa-play"></i></button>
                 <button id="nextBtn"><i class="fas fa-step-forward"></i></button>
             </div>
+
             <div class="progress-container">
                 <span id="currTime">0:00</span>
                 <input type="range" id="progressBar" value="0">
-                <span id="durTime">0:00</span>
             </div>
-            <a id="downloadLink" href="#" class="download-icon" download><i class="fas fa-download"></i></a>
+
+            <a id="downloadLink" href="#" class="download-icon" download>
+                <i class="fas fa-download"></i>
+            </a>
         </div>
+        
         <audio id="main-audio"></audio>
     </footer>
 
