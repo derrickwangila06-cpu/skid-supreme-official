@@ -32,7 +32,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // This tells the server: "If anyone visits the website, show them the frontend folder"
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-app.get('*', (req, res) => {
+app.get(/.*/, (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend', 'index.html'));
 });
 
