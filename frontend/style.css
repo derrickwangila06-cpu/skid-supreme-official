@@ -263,8 +263,8 @@ input:focus, textarea:focus {
 }
 
 .social-icon {
-    width: 40px;  /* Reduced from 50px */
-    height: 40px; /* Reduced from 50px */
+    width: 42px;  /* CHANGED TO 42px TO FORCE UPDATE */
+    height: 42px; /* CHANGED TO 42px TO FORCE UPDATE */
     background: #222;
     border-radius: 50%;
     display: flex;
@@ -272,7 +272,7 @@ input:focus, textarea:focus {
     justify-content: center;
     color: white;
     text-decoration: none;
-    font-size: 18px; /* Reduced from 20px */
+    font-size: 18px;
     transition: all 0.3s ease;
     position: relative;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
