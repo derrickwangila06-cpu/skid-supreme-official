@@ -2,15 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); // IMPORT PATH MODULE (The Map)
 
-// Import the Blueprint we just made
 const Mix = require('./models/Mix');
 
 const app = express();
-// Serve the Frontend Files (HTML, CSS, JS)
-app.use(express.static('frontend'));
 
-// Middleware (Allows the frontend to talk to the backend)
 app.use(cors());
 app.use(express.json());
 
@@ -19,12 +16,13 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected Successfully"))
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// --- ROUTES (The API Endpoints) ---
+// --- SERVE FRONTEND (THE FIX) ---
+// This tells the server: "Start here (__dirname), go UP one level (..), then into 'frontend'"
+app.use(express.static(path.join(__dirname, '../frontend')));
 
-// 1. GET all mixes (For the Homepage)
+// --- API ROUTES ---
 app.get('/api/mixes', async (req, res) => {
     try {
-        // Fetch mixes from DB and sort by newest first (-1)
         const mixes = await Mix.find().sort({ uploadDate: -1 });
         res.json(mixes);
     } catch (err) {
@@ -32,30 +30,22 @@ app.get('/api/mixes', async (req, res) => {
     }
 });
 
-// 2. POST a new mix (For the Dashboard)
 app.post('/api/mixes', async (req, res) => {
     try {
         const { title, description, audioLink, coverArt } = req.body;
-
-        // Create a new mix using our Blueprint
         const newMix = new Mix({
             title,
             description,
             audioLink,
-            coverArt: coverArt || 'logo.jpg' // Use default if empty
+            coverArt: coverArt || 'logo.jpg'
         });
-
-        // Save to Database
         const savedMix = await newMix.save();
         res.json(savedMix);
-        console.log("💿 New Mix Uploaded:", title);
-
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// 3. UPDATE Download Count (When someone clicks download)
 app.post('/api/mixes/:id/download', async (req, res) => {
     try {
         const mix = await Mix.findById(req.params.id);
@@ -67,6 +57,11 @@ app.post('/api/mixes/:id/download', async (req, res) => {
     }
 });
 
-// Start the Server
+// --- CATCH-ALL ROUTE (Safety Net) ---
+// If the server doesn't know what to do, just give them the website.
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
