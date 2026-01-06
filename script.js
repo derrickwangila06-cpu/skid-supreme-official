@@ -1,59 +1,150 @@
-// 1. DEFINE YOUR BACKEND URL
-// Check your backend terminal. If it says "Listening on port 3000", change 5000 to 3000 below.
-const API_BASE_URL = 'http://localhost:5000'; 
+document.addEventListener("DOMContentLoaded", () => {
+    
+    // --- 1. DOM ELEMENTS ---
+    const loadingScreen = document.getElementById('loading');
+    const mixFeed = document.getElementById('mix-feed');
+    const masterPlayer = document.getElementById('master-player');
+    const mainAudio = document.getElementById('main-audio');
+    
+    // Player Controls
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const currTime = document.getElementById('currTime');
+    const playerTitle = document.getElementById('player-title');
+    const playerImg = document.getElementById('player-img');
+    const downloadLink = document.getElementById('downloadLink');
 
-document.addEventListener('DOMContentLoaded', () => {
-    fetchData();
-});
-
-async function fetchData() {
-    try {
-        console.log("Attempting to connect to backend...");
-
-        // 2. THE FIX: Use the full URL to talk to the backend
-        // Replace '/api/songs' with the actual route you created in your backend (e.g., /api/products, /users, etc.)
-        const response = await fetch(`${API_BASE_URL}/api/songs`); 
-
-        // Check if the backend actually responded with "OK"
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    // --- 2. SAMPLE DATA (The "Demo" Mix) ---
+    // Once we connect the backend, this will come from your database.
+    const mixes = [
+        {
+            _id: "1",
+            title: "Supreme Vibes Vol. 1 (2026 Intro)",
+            description: "Afrobeat vs Amapiano - The Official Warmup",
+            image: "logo.jpg", // Uses your logo as cover art for now
+            audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", // Free sample audio
+            downloads: 150
+        },
+        {
+            _id: "2",
+            title: "Late Night Drive",
+            description: "HipHop & RnB Classics",
+            image: "logo.jpg",
+            audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+            downloads: 85
         }
+    ];
 
-        const data = await response.json();
-        console.log("Data received:", data);
+    let isPlaying = false;
+    let currentMixIndex = 0;
 
-        // 3. UPDATE YOUR PAGE (Example)
-        // This assumes you have an element with id="content" in your HTML.
-        // You can change this logic to display whatever data you are fetching.
-        const contentDiv = document.getElementById('content') || document.body;
+    // --- 3. INITIALIZATION ---
+    setTimeout(() => {
+        // Hide loader after 1.5 seconds
+        loadingScreen.style.display = 'none';
+        renderMixes(mixes);
+    }, 1500);
+
+    // --- 4. RENDER MIX CARDS ---
+    function renderMixes(mixList) {
+        mixFeed.innerHTML = '';
         
-        // Clear "Loading..." text
-        contentDiv.innerHTML = ''; 
-
-        // Example: Loop through data and display it
-        // If 'data' is an array, we map over it. If it's an object, we just display it.
-        if (Array.isArray(data)) {
-            data.forEach(item => {
-                const p = document.createElement('p');
-                p.textContent = JSON.stringify(item); // Simple display
-                contentDiv.appendChild(p);
-            });
-        } else {
-            const p = document.createElement('p');
-            p.textContent = JSON.stringify(data);
-            contentDiv.appendChild(p);
-        }
-
-    } catch (error) {
-        console.error("Connection Failed:", error);
-        
-        // Display a user-friendly error on the screen
-        document.body.innerHTML += `
-            <div style="color: red; text-align: center; margin-top: 20px;">
-                <h3>Connection Error</h3>
-                <p>Could not talk to Backend at ${API_BASE_URL}</p>
-                <p>Check the Console (F12) for details.</p>
-            </div>
-        `;
+        mixList.forEach((mix, index) => {
+            const card = document.createElement('div');
+            card.classList.add('mix-card');
+            
+            card.innerHTML = `
+                <div class="card-image" style="background-image: url('${mix.image}')">
+                    <button class="card-play-btn" onclick="loadAndPlay(${index})">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <div class="card-info">
+                    <h3>${mix.title}</h3>
+                    <p>${mix.description}</p>
+                    <div class="card-stats">
+                        <span><i class="fas fa-download"></i> ${mix.downloads}</span>
+                        <button class="share-btn"><i class="fas fa-share-alt"></i></button>
+                    </div>
+                </div>
+            `;
+            mixFeed.appendChild(card);
+        });
     }
-}
+
+    // --- 5. PLAYER FUNCTIONS ---
+    
+    // Expose this function to the window so HTML onclick works
+    window.loadAndPlay = (index) => {
+        currentMixIndex = index;
+        const mix = mixes[index];
+
+        // Update Player UI
+        playerTitle.innerText = mix.title;
+        playerImg.src = mix.image;
+        mainAudio.src = mix.audio;
+        downloadLink.href = mix.audio;
+
+        // Show Player
+        masterPlayer.classList.remove('player-hidden');
+        
+        playSong();
+    };
+
+    function playSong() {
+        mainAudio.play();
+        isPlaying = true;
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    }
+
+    function pauseSong() {
+        mainAudio.pause();
+        isPlaying = false;
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+    }
+
+    // --- 6. EVENT LISTENERS ---
+    
+    // Play/Pause Button
+    playBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            pauseSong();
+        } else {
+            playSong();
+        }
+    });
+
+    // Next / Prev
+    nextBtn.addEventListener('click', () => {
+        currentMixIndex = (currentMixIndex + 1) % mixes.length;
+        window.loadAndPlay(currentMixIndex);
+    });
+
+    prevBtn.addEventListener('click', () => {
+        currentMixIndex = (currentMixIndex - 1 + mixes.length) % mixes.length;
+        window.loadAndPlay(currentMixIndex);
+    });
+
+    // Progress Bar Update
+    mainAudio.addEventListener('timeupdate', (e) => {
+        const { duration, currentTime } = e.srcElement;
+        if (duration) {
+            const progressPercent = (currentTime / duration) * 100;
+            progressBar.value = progressPercent;
+            
+            // Calculate format 0:00
+            let min = Math.floor(currentTime / 60);
+            let sec = Math.floor(currentTime % 60);
+            if (sec < 10) sec = `0${sec}`;
+            currTime.innerText = `${min}:${sec}`;
+        }
+    });
+
+    // Seek Functionality
+    progressBar.addEventListener('input', () => {
+        const duration = mainAudio.duration;
+        mainAudio.currentTime = (progressBar.value / 100) * duration;
+    });
+});

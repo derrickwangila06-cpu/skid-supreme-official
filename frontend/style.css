@@ -506,4 +506,93 @@ input[type="range"]::-webkit-slider-thumb {
     
     .social-hub { gap: 10px; }
     .social-icon { width: 35px; height: 35px; font-size: 16px; }
+}/* =========================================
+   9. MIX CARDS (ADDED VIA SCRIPT)
+   ========================================= */
+.feed-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mix-card {
+    background: #111;
+    border-radius: 15px;
+    overflow: hidden;
+    border: 1px solid #222;
+    transition: transform 0.3s;
+}
+
+.mix-card:hover {
+    transform: translateY(-10px);
+    border-color: #ff0055;
+}
+
+.card-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-play-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 0, 85, 0.9);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+.card-image:hover .card-play-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.card-info {
+    padding: 20px;
+}
+
+.card-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-info p {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.card-stats {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 14px;
+}
+
+.share-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.share-btn:hover {
+    color: #fff;
 }
