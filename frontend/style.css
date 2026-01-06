@@ -141,6 +141,8 @@ nav a:hover, nav a.active {
     font-weight: bold;
     border-radius: 30px;
     transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+    cursor: pointer;
 }
 
 .cta-btn:hover {
@@ -149,7 +151,7 @@ nav a:hover, nav a.active {
 }
 
 /* =========================================
-   4. LOADING & FEED (EQUALIZER)
+   4. LOADING & FEED
    ========================================= */
 #loading {
     text-align: center;
@@ -482,7 +484,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* =========================================
-   8. MIX CARDS (NEW)
+   8. MIX CARDS
    ========================================= */
 .feed-container {
     display: grid;
@@ -597,7 +599,9 @@ input[type="range"]::-webkit-slider-thumb {
     
     .social-hub { gap: 10px; }
     .social-icon { width: 35px; height: 35px; font-size: 16px; }
-}/* =========================================
+}
+
+/* =========================================
    10. ADMIN LOGIN PAGE
    ========================================= */
 .admin-body {
@@ -639,7 +643,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .input-group input {
     width: 100%;
-    padding: 12px 12px 12px 45px; /* Space for icon */
+    padding: 12px 12px 12px 45px;
     background: #151515;
     border: 1px solid #333;
     color: white;
@@ -651,7 +655,9 @@ input[type="range"]::-webkit-slider-thumb {
     border-color: #ff0055;
     outline: none;
     box-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
-}/* =========================================
+}
+
+/* =========================================
    11. DASHBOARD STYLES
    ========================================= */
 .dashboard-body {
@@ -715,7 +721,7 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 40px;
     border-bottom: 1px solid #222;
     padding-bottom: 20px;
-    background: none; /* Override main header */
+    background: none;
 }
 
 .user-profile {
