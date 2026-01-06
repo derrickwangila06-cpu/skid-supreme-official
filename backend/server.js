@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); // IMPORT PATH MODULE (The Map)
+const path = require('path'); // 1. Import the GPS tool
 
 const Mix = require('./models/Mix');
 
@@ -17,7 +17,7 @@ mongoose.connect(process.env.MONGO_URI)
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
 // --- SERVE FRONTEND (THE FIX) ---
-// This tells the server: "Start here (__dirname), go UP one level (..), then into 'frontend'"
+// "path.join" tells the server: Start here (__dirname), go UP one level (..), THEN go to frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // --- API ROUTES ---
@@ -58,7 +58,7 @@ app.post('/api/mixes/:id/download', async (req, res) => {
 });
 
 // --- CATCH-ALL ROUTE (Safety Net) ---
-// If the server doesn't know what to do, just give them the website.
+// If the server gets a request it doesn't understand, send the website HTML
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
