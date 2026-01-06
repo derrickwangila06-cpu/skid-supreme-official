@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Center | DJ SKID SUPREME</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+
+    <nav class="sidebar">
+        <div class="logo">SKID <span class="highlight">ADMIN</span></div>
+        <ul class="nav-links">
+            <li class="active"><a href="#"><i class="fas fa-compact-disc"></i> Upload Mix</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Add Gig</a></li>
+            <li><a href="index.html"><i class="fas fa-globe"></i> View Site</a></li>
+            <li><a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <main class="dashboard-content">
+        <header>
+            <h2>Upload New Mix</h2>
+            <div class="user-profile">
+                <span>Boss Mode</span>
+                <img src="logo.jpg" alt="Admin">
+            </div>
+        </header>
+
+        <div class="upload-container">
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label>Mix Title</label>
+                    <input type="text" placeholder="e.g. Summer Vibe Vol. 5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description / Genre</label>
+                    <input type="text" placeholder="e.g. Afrobeat & Amapiano" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Audio Link (Google Drive / SoundCloud / Direct)</label>
+                    <input type="url" placeholder="https://..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Cover Art Link (or File)</label>
+                    <input type="text" placeholder="Image URL (we will add file upload later)">
+                </div>
+
+                <button type="submit" class="cta-btn">🚀 Publish to Website</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function logout() {
+            window.location.href = "admin.html";
+        }
+    </script>
+</body>
+</html>

@@ -149,7 +149,7 @@ nav a:hover, nav a.active {
 }
 
 /* =========================================
-   4. LOADING & FEED
+   4. LOADING & FEED (EQUALIZER)
    ========================================= */
 #loading {
     text-align: center;
@@ -227,7 +227,7 @@ input:focus, textarea:focus {
 }
 
 /* =========================================
-   6. FOOTER & SOCIAL HUB (OPTIMIZED SIZES)
+   6. FOOTER & SOCIAL HUB
    ========================================= */
 .site-footer {
     background: #000;
@@ -257,13 +257,13 @@ input:focus, textarea:focus {
 .social-hub {
     display: flex;
     justify-content: center;
-    gap: 15px; /* Clean spacing */
+    gap: 15px;
     margin-bottom: 40px;
     flex-wrap: wrap;
 }
 
 .social-icon {
-    width: 40px;  /* Perfect Medium Size */
+    width: 40px;
     height: 40px; 
     background: #222;
     border-radius: 50%;
@@ -304,7 +304,7 @@ input:focus, textarea:focus {
     transform: translateY(-5px);
 }
 
-/* --- YOUTUBE STYLE (CRITICAL FOR RED COLOR) --- */
+/* --- YOUTUBE STYLE (RED) --- */
 .social-icon.youtube {
     background: linear-gradient(45deg, #ff0000, #c4302b);
 }
@@ -482,32 +482,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* =========================================
-   8. MOBILE RESPONSIVE
-   ========================================= */
-@media (max-width: 768px) {
-    .hero h1 { font-size: 36px; }
-    
-    .player-content {
-        flex-direction: column;
-        padding-bottom: 10px;
-    }
-    
-    .track-info {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-    
-    .progress-container {
-        width: 100%;
-        margin-top: 10px;
-    }
-    
-    .controls { margin-bottom: 5px; }
-    
-    .social-hub { gap: 10px; }
-    .social-icon { width: 35px; height: 35px; font-size: 16px; }
-}/* =========================================
-   9. MIX CARDS (ADDED VIA SCRIPT)
+   8. MIX CARDS (NEW)
    ========================================= */
 .feed-container {
     display: grid;
@@ -595,4 +570,178 @@ input[type="range"]::-webkit-slider-thumb {
 
 .share-btn:hover {
     color: #fff;
+}
+
+/* =========================================
+   9. MOBILE RESPONSIVE
+   ========================================= */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 36px; }
+    
+    .player-content {
+        flex-direction: column;
+        padding-bottom: 10px;
+    }
+    
+    .track-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .progress-container {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .controls { margin-bottom: 5px; }
+    
+    .social-hub { gap: 10px; }
+    .social-icon { width: 35px; height: 35px; font-size: 16px; }
+}/* =========================================
+   10. ADMIN LOGIN PAGE
+   ========================================= */
+.admin-body {
+    background: #000;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #111 0%, #000 100%);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-box {
+    background: #0a0a0a;
+    padding: 40px;
+    border-radius: 20px;
+    border: 1px solid #222;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 12px 12px 45px; /* Space for icon */
+    background: #151515;
+    border: 1px solid #333;
+    color: white;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.input-group input:focus {
+    border-color: #ff0055;
+    outline: none;
+    box-shadow: 0 0 10px rgba(255, 0, 85, 0.2);
+}/* =========================================
+   11. DASHBOARD STYLES
+   ========================================= */
+.dashboard-body {
+    display: flex;
+    background: #050505;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #111;
+    border-right: 1px solid #222;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-links {
+    list-style: none;
+    margin-top: 50px;
+}
+
+.nav-links li {
+    margin-bottom: 20px;
+}
+
+.nav-links a {
+    color: #888;
+    text-decoration: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.nav-links li.active a, .nav-links a:hover {
+    background: #ff0055;
+    color: white;
+}
+
+.logout-btn {
+    color: #ff4444 !important;
+}
+
+/* Main Area */
+.dashboard-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.dashboard-content header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 20px;
+    background: none; /* Override main header */
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ff0055;
+}
+
+.upload-container {
+    background: #0a0a0a;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #222;
+    max-width: 600px;
+}
+
+.upload-container label {
+    display: block;
+    margin-bottom: 8px;
+    color: #aaa;
+    font-size: 14px;
 }

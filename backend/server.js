@@ -7,6 +7,8 @@ const cors = require('cors');
 const Mix = require('./models/Mix');
 
 const app = express();
+// Serve the Frontend Files (HTML, CSS, JS)
+app.use(express.static('frontend'));
 
 // Middleware (Allows the frontend to talk to the backend)
 app.use(cors());
