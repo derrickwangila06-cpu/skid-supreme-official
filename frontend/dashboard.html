@@ -12,8 +12,8 @@
     <nav class="sidebar">
         <div class="logo">SKID <span class="highlight">ADMIN</span></div>
         <ul class="nav-links">
-            <li class="active"><a href="#"><i class="fas fa-compact-disc"></i> Upload Mix</a></li>
-            <li><a href="#"><i class="fas fa-calendar-alt"></i> Add Gig</a></li>
+            <li class="active" id="btn-mix"><a href="#"><i class="fas fa-compact-disc"></i> Upload Mix</a></li>
+            <li id="btn-gig"><a href="#"><i class="fas fa-calendar-alt"></i> Add Gig</a></li>
             <li><a href="index.html"><i class="fas fa-globe"></i> View Site</a></li>
             <li><a href="#" onclick="logout()" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
@@ -21,14 +21,14 @@
 
     <main class="dashboard-content">
         <header>
-            <h2>Upload New Mix</h2>
+            <h2 id="section-title">Upload New Mix</h2>
             <div class="user-profile">
                 <span>Boss Mode</span>
                 <img src="logo.jpg" alt="Admin">
             </div>
         </header>
 
-        <div class="upload-container">
+        <div class="upload-container" id="section-mix">
             <form id="uploadForm">
                 <div class="form-group">
                     <label>Mix Title</label>
@@ -41,20 +41,48 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Audio Link (Google Drive / SoundCloud / Direct)</label>
+                    <label>Original Audio Link</label>
                     <input type="url" placeholder="https://..." required>
+                    <small style="color:#666; font-size:12px;">Paste link from Google Drive, SoundCloud, or Direct MP3</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Cover Art Link (or File)</label>
-                    <input type="text" placeholder="Image URL (we will add file upload later)">
+                    <label>Cover Art Link</label>
+                    <input type="text" placeholder="Image URL (or leave empty for default)">
                 </div>
 
-                <button type="submit" class="cta-btn">🚀 Publish to Website</button>
+                <button type="submit" class="cta-btn">🚀 Publish Mix</button>
+            </form>
+        </div>
+
+        <div class="upload-container" id="section-gig" style="display: none;">
+            <form id="gigForm">
+                <div class="form-group">
+                    <label>Date (e.g. 24 OCT)</label>
+                    <input type="text" placeholder="DD MMM" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Venue Name</label>
+                    <input type="text" placeholder="e.g. Club Cubana" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" placeholder="e.g. Nairobi, Kenya" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Ticket Link (Optional)</label>
+                    <input type="text" placeholder="https://...">
+                </div>
+
+                <button type="submit" class="cta-btn" style="background-color: #00e5ff; color: #000;">📅 Add Gig</button>
             </form>
         </div>
     </main>
 
+    <script src="dashboard.js"></script>
     <script>
         function logout() {
             window.location.href = "admin.html";

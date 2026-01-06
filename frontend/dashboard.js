@@ -1,49 +1,80 @@
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Stop the page from reloading
+// --- 1. TOGGLE SECTIONS LOGIC ---
+const btnMix = document.getElementById('btn-mix');
+const btnGig = document.getElementById('btn-gig');
+const sectionMix = document.getElementById('section-mix');
+const sectionGig = document.getElementById('section-gig');
+const sectionTitle = document.getElementById('section-title');
 
-    // 1. Grab the data from the form
-    const submitBtn = document.querySelector('.cta-btn');
-    const originalText = submitBtn.innerText;
+btnMix.addEventListener('click', () => {
+    // Show Mix, Hide Gig
+    sectionMix.style.display = 'block';
+    sectionGig.style.display = 'none';
+    sectionTitle.innerText = "Upload New Mix";
     
-    // Show loading state
-    submitBtn.innerText = "🚀 Uploading...";
-    submitBtn.disabled = true;
+    // Update Sidebar Active State
+    btnMix.classList.add('active');
+    btnGig.classList.remove('active');
+});
 
-    // Get values from inputs
-    // Note: We are selecting by 'placeholder' since we didn't add IDs. 
-    // In a future pro update, we should add IDs to the HTML inputs.
-    const inputs = document.querySelectorAll('input');
-    const title = inputs[0].value;
-    const description = inputs[1].value;
-    const audioLink = inputs[2].value;
-    const coverArt = inputs[3].value;
+btnGig.addEventListener('click', () => {
+    // Show Gig, Hide Mix
+    sectionMix.style.display = 'none';
+    sectionGig.style.display = 'block';
+    sectionTitle.innerText = "Add Upcoming Gig";
+    
+    // Update Sidebar Active State
+    btnGig.classList.add('active');
+    btnMix.classList.remove('active');
+});
 
-    const mixData = { title, description, audioLink, coverArt };
+// --- 2. UPLOAD MIX LOGIC ---
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const inputs = document.querySelectorAll('#uploadForm input');
+    
+    const mixData = {
+        title: inputs[0].value,
+        description: inputs[1].value,
+        audioLink: inputs[2].value,
+        coverArt: inputs[3].value
+    };
 
+    await sendData('/api/mixes', mixData, "Mix Published!");
+    document.getElementById('uploadForm').reset();
+});
+
+// --- 3. UPLOAD GIG LOGIC ---
+document.getElementById('gigForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const inputs = document.querySelectorAll('#gigForm input');
+
+    const gigData = {
+        date: inputs[0].value,
+        venue: inputs[1].value,
+        location: inputs[2].value,
+        ticketLink: inputs[3].value || '#'
+    };
+
+    await sendData('/api/gigs', gigData, "Gig Added!");
+    document.getElementById('gigForm').reset();
+});
+
+// --- HELPER FUNCTION TO SEND DATA ---
+async function sendData(url, data, successMsg) {
     try {
-        // 2. Send data to the Backend
-        // We use a relative path '/api/mixes' so it works on Localhost AND Render
-        const response = await fetch('/api/mixes', {
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(mixData)
+            body: JSON.stringify(data)
         });
 
-        const result = await response.json();
-
         if (response.ok) {
-            alert("✅ Success! Mix Published to the World.");
-            document.getElementById('uploadForm').reset(); // Clear form
+            alert("✅ Success: " + successMsg);
         } else {
-            alert("❌ Error: " + result.error);
+            alert("❌ Error sending data.");
         }
-
     } catch (error) {
-        console.error("Upload Error:", error);
-        alert("❌ Failed to connect to server.");
+        console.error(error);
+        alert("❌ Failed to connect.");
     }
-
-    // Reset button
-    submitBtn.innerText = originalText;
-    submitBtn.disabled = false;
-});
+}

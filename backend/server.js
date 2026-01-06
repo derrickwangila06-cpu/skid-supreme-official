@@ -2,9 +2,11 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const path = require('path'); // 1. Import the GPS tool
+const path = require('path');
 
+// Import Models
 const Mix = require('./models/Mix');
+const Gig = require('./models/Gig'); // ADDED GIG MODEL
 
 const app = express();
 
@@ -16,11 +18,14 @@ mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log("✅ MongoDB Connected Successfully"))
     .catch(err => console.error("❌ MongoDB Connection Error:", err));
 
-// --- SERVE FRONTEND (THE FIX) ---
-// "path.join" tells the server: Start here (__dirname), go UP one level (..), THEN go to frontend
+// Serve Frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// --- API ROUTES ---
+// ==========================================
+// API ROUTES
+// ==========================================
+
+// --- MIXES ROUTES (Existing) ---
 app.get('/api/mixes', async (req, res) => {
     try {
         const mixes = await Mix.find().sort({ uploadDate: -1 });
@@ -34,13 +39,10 @@ app.post('/api/mixes', async (req, res) => {
     try {
         const { title, description, audioLink, coverArt } = req.body;
         const newMix = new Mix({
-            title,
-            description,
-            audioLink,
-            coverArt: coverArt || 'logo.jpg'
+            title, description, audioLink, coverArt: coverArt || 'logo.jpg'
         });
-        const savedMix = await newMix.save();
-        res.json(savedMix);
+        await newMix.save();
+        res.json(newMix);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -57,8 +59,28 @@ app.post('/api/mixes/:id/download', async (req, res) => {
     }
 });
 
-// --- CATCH-ALL ROUTE (Safety Net) ---
-// If the server gets a request it doesn't understand, send the website HTML
+// --- GIGS ROUTES (NEWLY ADDED) ---
+app.get('/api/gigs', async (req, res) => {
+    try {
+        const gigs = await Gig.find(); // Fetch all gigs
+        res.json(gigs);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/gigs', async (req, res) => {
+    try {
+        const { date, venue, location, ticketLink } = req.body;
+        const newGig = new Gig({ date, venue, location, ticketLink });
+        await newGig.save();
+        res.json(newGig);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Catch-All
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
