@@ -750,4 +750,190 @@ input[type="range"]::-webkit-slider-thumb {
     margin-bottom: 8px;
     color: #aaa;
     font-size: 14px;
+}/* =========================================
+   12. MOBILE DASHBOARD FIXES (RESPONSIVE)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. Change layout from Side-by-Side to Top-to-Bottom */
+    .dashboard-body {
+        flex-direction: column;
+        height: auto;      /* Allow full scrolling */
+        overflow-y: auto;  /* Enable vertical scroll */
+        overflow-x: hidden;
+    }
+
+    /* 2. Fix the Sidebar (Navigation) */
+    .sidebar {
+        width: 100%;       /* Full width across top */
+        height: auto;      /* Auto height based on content */
+        border-right: none;
+        border-bottom: 1px solid #333;
+        padding: 15px;
+        position: relative;
+    }
+
+    .sidebar .logo {
+        text-align: center;
+        margin-bottom: 10px;
+        font-size: 20px;
+    }
+
+    /* 3. Turn the vertical list into horizontal buttons */
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 0;
+        padding: 0;
+    }
+
+    .nav-links li {
+        margin-bottom: 0; /* Remove bottom spacing */
+    }
+
+    .nav-links a {
+        font-size: 13px;
+        padding: 8px 15px;
+        background: #151515;
+        border: 1px solid #333;
+        border-radius: 20px; /* Pill shape buttons */
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    .nav-links li.active a {
+        background: #ff0055;
+        border-color: #ff0055;
+        color: white;
+    }
+
+    /* 4. Fix Main Content Area */
+    .dashboard-content {
+        padding: 20px 15px; /* Smaller padding for mobile */
+        width: 100%;
+    }
+
+    .dashboard-content header {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        text-align: center;
+    }
+
+    .user-profile {
+        width: 100%;
+        justify-content: center;
+        background: #111;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    /* 5. Fix Form Inputs */
+    .upload-container {
+        padding: 20px;
+    }
+    
+    input, select, button {
+        font-size: 16px; /* Prevents iPhone zoom on focus */
+    }
+}/* =========================================
+   13. POLISH & ANIMATIONS (The "Alive" Feel)
+   ========================================= */
+
+/* 1. Smooth Scrolling for the whole page */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 2. Mix Card Hover Effect (Float Up) */
+.mix-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mix-card:hover {
+    transform: translateY(-10px); /* Moves up slightly */
+    box-shadow: 0 10px 20px rgba(255, 0, 85, 0.4); /* Pink Glow Shadow */
+}
+
+/* 3. Play Button Pulse Animation */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 0, 85, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
+}
+
+.card-play-btn:hover {
+    background: #ff0055;
+    transform: scale(1.1); /* Grows slightly */
+}
+
+/* 4. Master Player "Heartbeat" when playing */
+.play-btn {
+    animation: pulse-glow 2s infinite;
+    border-radius: 50%;
+}
+
+/* 5. Gradient Text for "DJ SKID SUPREME" */
+.hero h1 {
+    background: linear-gradient(45deg, #fff, #ff0055, #00e5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: gradient-move 3s linear infinite;
+}
+
+@keyframes gradient-move {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}/* =========================================
+   14. ULTRA-MODERN UI (Glass & Scrollbar)
+   ========================================= */
+
+/* 1. Custom Neon Scrollbar (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #000; /* Dark track */
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333; /* Dark Grey Handle */
+    border-radius: 5px;
+    border: 2px solid #000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff0055; /* Turns Pink when you grab it */
+}
+
+/* 2. Glassmorphism Player (Frosted Glass Effect) */
+.music-player {
+    background: rgba(0, 0, 0, 0.85); /* 85% Black */
+    backdrop-filter: blur(10px);      /* The Blur Effect */
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+}
+
+/* 3. Better Album Art in Player */
+.player-content img {
+    border: 2px solid #333;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
+}
+
+.player-content img:hover {
+    transform: scale(1.1) rotate(5deg); /* Spins slightly on hover */
+    border-color: #ff0055;
+}
+
+/* 4. Highlight the "Active" Link in Admin Sidebar */
+.nav-links li.active a {
+    background: linear-gradient(90deg, #ff0055, #ff4444);
+    box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+    border: none;
 }

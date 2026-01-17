@@ -1,13 +1,17 @@
 document.addEventListener("DOMContentLoaded", () => {
     
     // ==========================================
-    // 1. DOM ELEMENTS SELECTION
+    // CONFIGURATION
     // ==========================================
+    // This connects the frontend to your backend "Brain"
+    const API_URL = "http://localhost:5000";
+
+    // DOM ELEMENTS
     const loadingScreen = document.getElementById('loading');
     const mixFeed = document.getElementById('mix-feed');
-    const eventsList = document.getElementById('events-list'); // For the Gigs
+    const eventsList = document.getElementById('events-list');
     
-    // Player DOM Elements
+    // Player Elements
     const masterPlayer = document.getElementById('master-player');
     const mainAudio = document.getElementById('main-audio');
     const playBtn = document.getElementById('playBtn');
@@ -19,24 +23,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const playerImg = document.getElementById('player-img');
     const downloadLink = document.getElementById('downloadLink');
 
-    // State Variables
     let mixes = [];
     let isPlaying = false;
     let currentMixIndex = 0;
 
     // ==========================================
-    // 2. FETCH REAL DATA (MIXES & GIGS)
+    // 1. FETCH REAL DATA
     // ==========================================
     
-    // We use Promise.all to fetch both lists at the same time
+    // Fetch Mixes and Gigs from the Server (Port 5000)
     Promise.all([
-        fetch('/api/mixes').then(res => res.json()),
-        fetch('/api/gigs').then(res => res.json())
+        fetch(`${API_URL}/api/mixes`).then(res => res.json()),
+        fetch(`${API_URL}/api/gigs`).then(res => res.json())
     ]).then(([mixData, gigData]) => {
         
         // --- HANDLE MIXES ---
         mixes = mixData;
-        loadingScreen.style.display = 'none'; // Hide loader
+        loadingScreen.style.display = 'none';
         
         if (mixes.length > 0) {
             renderMixes(mixes);
@@ -53,20 +56,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }).catch(err => {
         console.error("Error loading content:", err);
-        loadingScreen.innerHTML = '<p style="color:red;">System Error: Could not load data.</p>';
+        loadingScreen.innerHTML = '<p style="color:red;">Could not connect to Server (Port 5000).</p>';
     });
 
     // ==========================================
-    // 3. RENDER FUNCTIONS (DISPLAY TO SCREEN)
+    // 2. RENDER FUNCTIONS
     // ==========================================
 
     function renderMixes(list) {
-        mixFeed.innerHTML = ''; // Clear existing content
+        mixFeed.innerHTML = '';
         
         list.forEach((mix, index) => {
-            // Handle image: Use uploaded link OR default 'logo.jpg'
-            const imageSrc = mix.coverArt || 'logo.jpg';
-            
+            // FIX: If the image is stored on the server, add the server URL
+            // If it's a web link (http...), keep it as is. If it's /uploads/..., add localhost:5000
+            let imageSrc = mix.coverArt || 'logo.jpg';
+            if (imageSrc.startsWith('/uploads')) {
+                imageSrc = API_URL + imageSrc;
+            }
+
             const card = document.createElement('div');
             card.classList.add('mix-card');
             
@@ -92,11 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderGigs(list) {
-        eventsList.innerHTML = ''; // Clear loading text
+        eventsList.innerHTML = '';
         
         list.forEach(gig => {
             const gigItem = document.createElement('div');
-            // Inline styles for quick layout (matches the dark theme)
             gigItem.style.cssText = `
                 display: flex; 
                 justify-content: space-between; 
@@ -124,39 +130,43 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // 4. PLAYER LOGIC (THE BRAIN)
+    // 3. PLAYER LOGIC
     // ==========================================
     
-    // Attach function to window so HTML can access it
     window.loadAndPlay = (index) => {
         currentMixIndex = index;
         const mix = mixes[index];
 
-        // Update UI
+        // Prepare Image URL
+        let imageSrc = mix.coverArt || 'logo.jpg';
+        if (imageSrc.startsWith('/uploads')) {
+            imageSrc = API_URL + imageSrc;
+        }
+
+        // Prepare Audio URL
+        let audioSrc = mix.audioLink;
+        if (audioSrc.startsWith('/uploads')) {
+            audioSrc = API_URL + audioSrc;
+        }
+
+        // Update Player UI
         playerTitle.innerText = mix.title;
-        playerImg.src = mix.coverArt || 'logo.jpg';
+        playerImg.src = imageSrc;
+        mainAudio.src = audioSrc;
+        downloadLink.href = audioSrc;
         
-        // Set Audio Source
-        mainAudio.src = mix.audioLink;
-        downloadLink.href = mix.audioLink;
-        
-        // Trigger Download Count Update in Background
+        // Update Stats
         updateDownloadCount(mix._id);
 
-        // Show Player Footer
         masterPlayer.classList.remove('player-hidden');
-        
-        // Start Playing
         playSong();
     };
 
     function updateDownloadCount(id) {
-        // Send a signal to backend to add +1 to downloads
-        fetch(`/api/mixes/${id}/download`, { method: 'POST' })
+        fetch(`${API_URL}/api/mixes/${id}/download`, { method: 'POST' })
             .catch(err => console.error("Count Error", err));
     }
 
-    // Share Functionality (Restored!)
     window.shareMix = (title) => {
         if (navigator.share) {
             navigator.share({
@@ -165,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 url: window.location.href
             }).catch(console.error);
         } else {
-            alert("Link copied to clipboard! Share it with your friends.");
+            alert("Link copied to clipboard!");
         }
     };
 
@@ -181,39 +191,23 @@ document.addEventListener("DOMContentLoaded", () => {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
 
-    // ==========================================
-    // 5. EVENT LISTENERS (CONTROLS)
-    // ==========================================
+    // Controls
+    playBtn.addEventListener('click', () => isPlaying ? pauseSong() : playSong());
     
-    // Play/Pause Toggle
-    playBtn.addEventListener('click', () => {
-        if (isPlaying) pauseSong();
-        else playSong();
-    });
-
-    // Next Button
     nextBtn.addEventListener('click', () => {
-        // Go to next index, wrap around if at the end
         currentMixIndex = (currentMixIndex + 1) % mixes.length;
         window.loadAndPlay(currentMixIndex);
     });
 
-    // Previous Button
     prevBtn.addEventListener('click', () => {
-        // Go to prev index, wrap around if at the start
         currentMixIndex = (currentMixIndex - 1 + mixes.length) % mixes.length;
         window.loadAndPlay(currentMixIndex);
     });
 
-    // Progress Bar (Time Update)
     mainAudio.addEventListener('timeupdate', (e) => {
         const { duration, currentTime } = e.srcElement;
         if (duration) {
-            // Update Slider
-            const progressPercent = (currentTime / duration) * 100;
-            progressBar.value = progressPercent;
-            
-            // Update Time Text (0:00)
+            progressBar.value = (currentTime / duration) * 100;
             let min = Math.floor(currentTime / 60);
             let sec = Math.floor(currentTime % 60);
             if (sec < 10) sec = `0${sec}`;
@@ -221,13 +215,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Seek (Clicking the bar)
     progressBar.addEventListener('input', () => {
-        const duration = mainAudio.duration;
-        mainAudio.currentTime = (progressBar.value / 100) * duration;
+        mainAudio.currentTime = (progressBar.value / 100) * mainAudio.duration;
     });
 
-    // Auto-play next song when one ends
     mainAudio.addEventListener('ended', () => {
         currentMixIndex = (currentMixIndex + 1) % mixes.length;
         window.loadAndPlay(currentMixIndex);

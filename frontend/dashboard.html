@@ -29,7 +29,7 @@
         </header>
 
         <div class="upload-container" id="section-mix">
-            <form id="uploadForm">
+            <form id="uploadForm" enctype="multipart/form-data">
                 <div class="form-group">
                     <label>Mix Title</label>
                     <input type="text" id="mixTitle" placeholder="e.g. Summer Vibe Vol. 5" required>
@@ -43,12 +43,13 @@
                 <div class="form-group">
                     <label>Upload Audio File (MP3)</label>
                     <input type="file" id="mixFile" accept="audio/*" style="padding: 10px; background: #222;" required>
-                    <small style="color:#666;">Select an MP3 file from your computer</small>
+                    <small style="color:#666;">Select MP3 file from your computer</small>
                 </div>
 
                 <div class="form-group">
-                    <label>Cover Art Link</label>
-                    <input type="text" id="mixCover" placeholder="Image URL (or leave empty for default)">
+                    <label>Upload Cover Art (Image)</label>
+                    <input type="file" id="mixCover" accept="image/*" style="padding: 10px; background: #222;">
+                    <small style="color:#666;">Select JPG or PNG file (Square recommended)</small>
                 </div>
 
                 <button type="submit" class="cta-btn">🚀 Upload & Publish</button>
@@ -80,6 +81,21 @@
                 <button type="submit" class="cta-btn" style="background-color: #00e5ff; color: #000;">📅 Add Gig</button>
             </form>
         </div>
+
+        <div class="upload-container" style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
+            <h3 style="margin-bottom: 20px; color: #ff4444;">🗑️ Manage & Delete Content</h3>
+            
+            <h4 style="color: #888; margin-bottom: 10px;">Your Mixes</h4>
+            <div id="admin-mix-list" style="margin-bottom: 30px;">
+                <p style="color:#444;">Loading...</p>
+            </div>
+
+            <h4 style="color: #888; margin-bottom: 10px;">Upcoming Gigs</h4>
+            <div id="admin-gig-list">
+                <p style="color:#444;">Loading...</p>
+            </div>
+        </div>
+
     </main>
 
     <script src="dashboard.js"></script>
