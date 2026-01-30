@@ -1,226 +1,153 @@
-document.addEventListener("DOMContentLoaded", () => {
-    
-    // ==========================================
-    // CONFIGURATION
-    // ==========================================
-    // This connects the frontend to your backend "Brain"
-    const API_URL = "http://localhost:5000";
+/* =========================================
+   MAIN WEBSITE LOGIC (The Receiver)
+   ========================================= */
+// Point to your backend
+const API_URL = 'http://localhost:5000';
 
-    // DOM ELEMENTS
-    const loadingScreen = document.getElementById('loading');
-    const mixFeed = document.getElementById('mix-feed');
-    const eventsList = document.getElementById('events-list');
-    
-    // Player Elements
-    const masterPlayer = document.getElementById('master-player');
-    const mainAudio = document.getElementById('main-audio');
-    const playBtn = document.getElementById('playBtn');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const progressBar = document.getElementById('progressBar');
-    const currTime = document.getElementById('currTime');
-    const playerTitle = document.getElementById('player-title');
-    const playerImg = document.getElementById('player-img');
-    const downloadLink = document.getElementById('downloadLink');
+const mixContainer = document.getElementById('mix-container');
+const gigContainer = document.getElementById('gig-container'); // Make sure your HTML has this ID in the Gigs section
+const loadingScreen = document.getElementById('loading');
 
-    let mixes = [];
-    let isPlaying = false;
-    let currentMixIndex = 0;
+// MASTER PLAYER ELEMENTS
+const masterPlayer = document.getElementById('master-player');
+const audioPlayer = document.getElementById('main-audio');
+const playerTitle = document.getElementById('player-title');
+const playerDesc = document.getElementById('player-desc');
+const playerImg = document.getElementById('player-img');
+const playBtn = document.getElementById('playBtn');
+const downloadLink = document.getElementById('downloadLink');
 
-    // ==========================================
-    // 1. FETCH REAL DATA
-    // ==========================================
-    
-    // Fetch Mixes and Gigs from the Server (Port 5000)
-    Promise.all([
-        fetch(`${API_URL}/api/mixes`).then(res => res.json()),
-        fetch(`${API_URL}/api/gigs`).then(res => res.json())
-    ]).then(([mixData, gigData]) => {
+// STATE
+let isPlaying = false;
+
+/* =========================================
+   1. ON LOAD: FETCH DATA
+   ========================================= */
+window.addEventListener('DOMContentLoaded', async () => {
+    await loadMixes();
+    await loadGigs();
+});
+
+/* =========================================
+   2. FETCH MIXES
+   ========================================= */
+async function loadMixes() {
+    try {
+        const response = await fetch(`${API_URL}/api/mixes`);
+        const mixes = await response.json();
         
-        // --- HANDLE MIXES ---
-        mixes = mixData;
-        loadingScreen.style.display = 'none';
-        
-        if (mixes.length > 0) {
-            renderMixes(mixes);
-        } else {
-            mixFeed.innerHTML = '<p style="text-align:center; color:#666; width:100%;">No mixes found in the crates yet.</p>';
+        // Hide Loading Animation
+        if(loadingScreen) loadingScreen.style.display = 'none';
+
+        if (mixes.length === 0) {
+            mixContainer.innerHTML = '<p style="text-align:center; color: #888;">No mixes dropped yet.</p>';
+            return;
         }
 
-        // --- HANDLE GIGS ---
-        if (gigData.length > 0) {
-            renderGigs(gigData);
-        } else {
-            eventsList.innerHTML = '<p style="color:#666;">No upcoming dates announced.</p>';
-        }
+        // Generate HTML for each mix
+        mixContainer.innerHTML = mixes.map(mix => {
+            // Safety: Ensure paths use forward slashes for browser compatibility
+            const cleanImage = mix.image ? mix.image.replace(/\\/g, '/') : 'assets/logo.jpg';
+            const cleanAudio = mix.audio ? mix.audio.replace(/\\/g, '/') : '#';
 
-    }).catch(err => {
-        console.error("Error loading content:", err);
-        loadingScreen.innerHTML = '<p style="color:red;">Could not connect to Server (Port 5000).</p>';
-    });
-
-    // ==========================================
-    // 2. RENDER FUNCTIONS
-    // ==========================================
-
-    function renderMixes(list) {
-        mixFeed.innerHTML = '';
-        
-        list.forEach((mix, index) => {
-            // FIX: If the image is stored on the server, add the server URL
-            // If it's a web link (http...), keep it as is. If it's /uploads/..., add localhost:5000
-            let imageSrc = mix.coverArt || 'logo.jpg';
-            if (imageSrc.startsWith('/uploads')) {
-                imageSrc = API_URL + imageSrc;
-            }
-
-            const card = document.createElement('div');
-            card.classList.add('mix-card');
-            
-            card.innerHTML = `
-                <div class="card-image" style="background-image: url('${imageSrc}')">
-                    <button class="card-play-btn" onclick="loadAndPlay(${index})">
+            return `
+            <div class="mix-card">
+                <div class="card-image" style="background-image: url('${cleanImage}');">
+                    <button class="card-play-btn" onclick="playTrack('${mix.title}', '${mix.description}', '${cleanImage}', '${cleanAudio}')">
                         <i class="fas fa-play"></i>
                     </button>
                 </div>
                 <div class="card-info">
                     <h3>${mix.title}</h3>
                     <p>${mix.description}</p>
-                    <div class="card-stats">
-                        <span><i class="fas fa-download"></i> ${mix.downloads}</span>
-                        <button class="share-btn" onclick="shareMix('${mix.title}')">
-                            <i class="fas fa-share-alt"></i>
-                        </button>
-                    </div>
                 </div>
+            </div>
             `;
-            mixFeed.appendChild(card);
-        });
-    }
+        }).join('');
 
-    function renderGigs(list) {
-        eventsList.innerHTML = '';
-        
-        list.forEach(gig => {
-            const gigItem = document.createElement('div');
-            gigItem.style.cssText = `
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center; 
-                background: #111; 
-                padding: 15px; 
-                margin-bottom: 10px; 
-                border-radius: 8px; 
-                border-left: 3px solid #ff0055;
-                border-bottom: 1px solid #222;
-            `;
-            
-            gigItem.innerHTML = `
-                <div>
-                    <h4 style="margin:0; font-size:16px; color:white;">${gig.date}</h4>
-                    <p style="margin:5px 0 0; color:#888; font-size:13px;">${gig.venue} - ${gig.location}</p>
-                </div>
-                <a href="${gig.ticketLink}" target="_blank" class="cta-btn" 
-                   style="margin-top:0; padding:8px 15px; font-size:12px; height:auto;">
-                   Tickets
-                </a>
-            `;
-            eventsList.appendChild(gigItem);
-        });
+    } catch (error) {
+        console.error("Error loading mixes:", error);
+        if(mixContainer) mixContainer.innerHTML = '<p style="text-align:center; color:red;">Offline Mode (Server not reachable)</p>';
     }
+}
 
-    // ==========================================
-    // 3. PLAYER LOGIC
-    // ==========================================
+/* =========================================
+   3. FETCH GIGS
+   ========================================= */
+async function loadGigs() {
+    const gigList = document.getElementById('events-list') || document.getElementById('gig-container');
+    if (!gigList) return;
+
+    try {
+        const response = await fetch(`${API_URL}/api/gigs`);
+        const gigs = await response.json();
+
+        if (gigs.length === 0) {
+            gigList.innerHTML = '<p style="color:#666;">No upcoming dates.</p>';
+            return;
+        }
+
+        gigList.innerHTML = gigs.map(gig => `
+            <div style="background:#111; padding:15px; margin-bottom:10px; border-left:4px solid #ff0055; border-radius: 4px;">
+                <h3 style="color:white; font-size:16px; margin-bottom: 5px;">${gig.venue}</h3>
+                <p style="color:#888; font-size: 14px;">
+                    <i class="fas fa-map-marker-alt" style="color:#ff0055;"></i> ${gig.location} &nbsp;•&nbsp; 
+                    <i class="fas fa-calendar" style="color:#ff0055;"></i> ${gig.date}
+                </p>
+                ${gig.ticketLink ? `<a href="${gig.ticketLink}" target="_blank" style="color:#00e5ff; font-size:12px; text-decoration:none; display:inline-block; margin-top:5px;">Get Tickets &rarr;</a>` : ''}
+            </div>
+        `).join('');
+    } catch (error) {
+        console.log("Gigs could not load");
+    }
+}
+
+/* =========================================
+   4. PLAYER LOGIC
+   ========================================= */
+// This function is called when you click the Play button on a card
+window.playTrack = function(title, desc, image, audio) {
+    // 1. Show the Player
+    masterPlayer.classList.remove('player-hidden');
+
+    // 2. Update Info
+    playerTitle.innerText = title;
+    playerDesc.innerText = desc;
+    playerImg.src = image;
+    downloadLink.href = audio;
+
+    // 3. Play Audio
+    audioPlayer.src = audio;
     
-    window.loadAndPlay = (index) => {
-        currentMixIndex = index;
-        const mix = mixes[index];
-
-        // Prepare Image URL
-        let imageSrc = mix.coverArt || 'logo.jpg';
-        if (imageSrc.startsWith('/uploads')) {
-            imageSrc = API_URL + imageSrc;
-        }
-
-        // Prepare Audio URL
-        let audioSrc = mix.audioLink;
-        if (audioSrc.startsWith('/uploads')) {
-            audioSrc = API_URL + audioSrc;
-        }
-
-        // Update Player UI
-        playerTitle.innerText = mix.title;
-        playerImg.src = imageSrc;
-        mainAudio.src = audioSrc;
-        downloadLink.href = audioSrc;
-        
-        // Update Stats
-        updateDownloadCount(mix._id);
-
-        masterPlayer.classList.remove('player-hidden');
-        playSong();
-    };
-
-    function updateDownloadCount(id) {
-        fetch(`${API_URL}/api/mixes/${id}/download`, { method: 'POST' })
-            .catch(err => console.error("Count Error", err));
+    // Safety check: only play if valid source
+    if(audio && audio !== '#') {
+        audioPlayer.play()
+            .then(() => {
+                isPlaying = true;
+                updatePlayIcon();
+            })
+            .catch(err => console.log("Auto-play blocked:", err));
     }
+};
 
-    window.shareMix = (title) => {
-        if (navigator.share) {
-            navigator.share({
-                title: 'DJ SKID SUPREME',
-                text: `Check out this mix: ${title}`,
-                url: window.location.href
-            }).catch(console.error);
+// Toggle Play/Pause on the footer player
+if(playBtn) {
+    playBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            audioPlayer.pause();
+            isPlaying = false;
         } else {
-            alert("Link copied to clipboard!");
+            audioPlayer.play();
+            isPlaying = true;
         }
-    };
+        updatePlayIcon();
+    });
+}
 
-    function playSong() {
-        mainAudio.play();
-        isPlaying = true;
+function updatePlayIcon() {
+    if (isPlaying) {
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    }
-
-    function pauseSong() {
-        mainAudio.pause();
-        isPlaying = false;
+    } else {
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
     }
-
-    // Controls
-    playBtn.addEventListener('click', () => isPlaying ? pauseSong() : playSong());
-    
-    nextBtn.addEventListener('click', () => {
-        currentMixIndex = (currentMixIndex + 1) % mixes.length;
-        window.loadAndPlay(currentMixIndex);
-    });
-
-    prevBtn.addEventListener('click', () => {
-        currentMixIndex = (currentMixIndex - 1 + mixes.length) % mixes.length;
-        window.loadAndPlay(currentMixIndex);
-    });
-
-    mainAudio.addEventListener('timeupdate', (e) => {
-        const { duration, currentTime } = e.srcElement;
-        if (duration) {
-            progressBar.value = (currentTime / duration) * 100;
-            let min = Math.floor(currentTime / 60);
-            let sec = Math.floor(currentTime % 60);
-            if (sec < 10) sec = `0${sec}`;
-            currTime.innerText = `${min}:${sec}`;
-        }
-    });
-
-    progressBar.addEventListener('input', () => {
-        mainAudio.currentTime = (progressBar.value / 100) * mainAudio.duration;
-    });
-
-    mainAudio.addEventListener('ended', () => {
-        currentMixIndex = (currentMixIndex + 1) % mixes.length;
-        window.loadAndPlay(currentMixIndex);
-    });
-});
+}

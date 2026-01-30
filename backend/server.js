@@ -1,193 +1,138 @@
-// --- 1. SETUP & IMPORTS ---
-const path = require('path');
-// Point to .env file safely so it never fails
-require('dotenv').config({ path: path.join(__dirname, '.env') });
-
+/* =========================================
+   1. SERVER SETUP & DEPENDENCIES
+   ========================================= */
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path'); // ➤ Added this back!
 const multer = require('multer');
-const fs = require('fs');
-
-// Import Models
-const Mix = require('./models/Mix');
-const Gig = require('./models/Gig');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// --- 2. CONFIGURE FILE STORAGE ---
-const uploadDir = path.join(__dirname, 'uploads');
-// Create the uploads folder if it doesn't exist
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const cleanName = file.originalname.replace(/\s+/g, '-');
-        cb(null, Date.now() + '-' + cleanName);
-    }
+/* =========================================
+   2. CLOUDINARY CONFIGURATION
+   ========================================= */
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'dj-skid-uploads',
+        resource_type: 'auto',
+        allowed_formats: ['mp3', 'm4a', 'jpg', 'png', 'jpeg']
+    }
+});
 const upload = multer({ storage: storage });
 
-// --- 3. DATABASE CONNECTION (FIXED FOR DNS ERRORS) ---
-const dbUri = process.env.MONGO_URI;
+/* =========================================
+   3. DATABASE CONNECTION
+   ========================================= */
+mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log('✅ MongoDB Connected'))
+.catch(err => console.error('❌ Database Connection Error:', err));
 
-if (!dbUri) {
-    console.error("❌ ERROR: MONGO_URI is missing in .env file");
-} else {
-    // FIX: specific options to bypass DNS SRV errors
-    const clientOptions = {
-        serverSelectionTimeoutMS: 5000,
-        family: 4 // Force IPv4 to fix 'ECONNREFUSED' errors
-    };
+/* =========================================
+   4. DATA MODELS
+   ========================================= */
+const MixSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    image: String,
+    audio: String,
+    createdAt: { type: Date, default: Date.now }
+});
+const Mix = mongoose.model('Mix', MixSchema);
 
-    mongoose.connect(dbUri, clientOptions)
-        .then(() => console.log("✅ MongoDB Connected Successfully"))
-        .catch(err => {
-            console.error("❌ MongoDB Connection Error:", err);
-            console.log("💡 TIP: If this fails, check your internet or firewall.");
-        });
-}
+const GigSchema = new mongoose.Schema({
+    date: String,
+    venue: String,
+    location: String,
+    ticketLink: String
+});
+const Gig = mongoose.model('Gig', GigSchema);
 
-// --- 4. SERVE FILES ---
-// Serve the Website (Frontend)
-app.use(express.static(path.join(__dirname, '../frontend')));
-// Serve Uploaded Music/Images
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+/* =========================================
+   5. API ROUTES
+   ========================================= */
 
-// ==========================================
-// 5. API ROUTES
-// ==========================================
-
-// --- MIXES ROUTES ---
-
-// GET ALL MIXES
+// GET MIXES
 app.get('/api/mixes', async (req, res) => {
     try {
-        const mixes = await Mix.find().sort({ uploadDate: -1 });
+        const mixes = await Mix.find().sort({ createdAt: -1 });
         res.json(mixes);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Failed to fetch mixes' });
     }
 });
 
-// UPLOAD MIX (Audio + Cover)
-const mixUpload = upload.fields([
-    { name: 'audio', maxCount: 1 }, 
-    { name: 'cover', maxCount: 1 }
-]);
-
-app.post('/api/mixes', mixUpload, async (req, res) => {
+// UPLOAD MIX (Cloud Version)
+app.post('/api/mixes', upload.fields([{ name: 'audioFile' }, { name: 'imageFile' }]), async (req, res) => {
     try {
-        console.log("📥 Upload Request Received...");
+        const audioUrl = req.files['audioFile'] ? req.files['audioFile'][0].path : '';
+        const imageUrl = req.files['imageFile'] ? req.files['imageFile'][0].path : '';
 
-        // Safety Check: Do files exist?
-        if (!req.files) {
-            return res.status(400).json({ error: "No files uploaded." });
-        }
+        const newMix = new Mix({
+            title: req.body.title,
+            description: req.body.description,
+            audio: audioUrl,
+            image: imageUrl
+        });
 
-        const audioFile = req.files['audio'] ? req.files['audio'][0] : null;
-        const coverFile = req.files['cover'] ? req.files['cover'][0] : null;
-
-        if (!audioFile) {
-            return res.status(400).json({ error: "Audio file is required!" });
-        }
-
-        // Create links
-        const audioLink = `/uploads/${audioFile.filename}`;
-        const coverArt = coverFile ? `/uploads/${coverFile.filename}` : 'logo.jpg';
-
-        const { title, description } = req.body;
-        const newMix = new Mix({ title, description, audioLink, coverArt });
-        
         await newMix.save();
-        console.log("🎉 Mix Saved Successfully!");
-        res.json(newMix);
-
+        res.status(201).json({ message: 'Mix Uploaded to Cloud Successfully!' });
     } catch (err) {
-        console.error("❌ Server Error:", err);
-        res.status(500).json({ error: err.message });
+        console.error("Upload Error:", err);
+        res.status(500).json({ error: 'Upload failed' });
     }
 });
 
-// DOWNLOAD COUNTER
-app.post('/api/mixes/:id/download', async (req, res) => {
-    try {
-        const mix = await Mix.findById(req.params.id);
-        if (mix) {
-            mix.downloads += 1;
-            await mix.save();
-            res.json({ downloads: mix.downloads });
-        } else {
-            res.status(404).json({ error: "Mix not found" });
-        }
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// DELETE MIX
-app.delete('/api/mixes/:id', async (req, res) => {
-    try {
-        const mix = await Mix.findByIdAndDelete(req.params.id);
-        if (!mix) return res.status(404).json({ error: "Mix not found" });
-        res.json({ message: "Mix deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// --- GIGS ROUTES ---
-
-// GET ALL GIGS
+// GET GIGS
 app.get('/api/gigs', async (req, res) => {
     try {
         const gigs = await Gig.find();
         res.json(gigs);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Failed to fetch gigs' });
     }
 });
 
 // ADD GIG
 app.post('/api/gigs', async (req, res) => {
     try {
-        const { date, venue, location, ticketLink } = req.body;
-        const newGig = new Gig({ date, venue, location, ticketLink });
+        const newGig = new Gig(req.body);
         await newGig.save();
-        res.json(newGig);
+        res.json({ message: 'Gig Added!' });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Failed to add gig' });
     }
 });
 
-// DELETE GIG
-app.delete('/api/gigs/:id', async (req, res) => {
-    try {
-        await Gig.findByIdAndDelete(req.params.id);
-        res.json({ message: "Gig deleted successfully" });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+/* =========================================
+   6. SERVE FRONTEND (THE MISSING PIECE)
+   ========================================= */
+// This tells the server: "Look in the frontend folder for HTML files"
+app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Catch-All (Optional but safe): Redirect to home if file not found
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// --- CATCH-ALL ROUTE ---
-app.use((req, res) => {
-    if (req.method === 'GET' && !req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../frontend/index.html'));
-    } else {
-        res.status(404).json({ error: "Not Found" });
-    }
+/* =========================================
+   7. START SERVER
+   ========================================= */
+app.listen(PORT, () => {
+    console.log(`🚀 DJ Server (Cloud Edition) running on port ${PORT}`);
 });
-
-// --- START SERVER ---
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

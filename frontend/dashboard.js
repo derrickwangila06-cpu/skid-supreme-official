@@ -9,9 +9,6 @@ if (!sessionStorage.getItem("isAdmin")) {
 // ==========================================
 // CONFIGURATION
 // ==========================================
-// ... (rest of your code continues below) ...// ==========================================
-// CONFIGURATION
-// ==========================================
 // This points directly to your backend "Brain"
 const API_URL = "http://localhost:5000";
 
@@ -22,100 +19,110 @@ const sectionMix = document.getElementById('section-mix');
 const sectionGig = document.getElementById('section-gig');
 const sectionTitle = document.getElementById('section-title');
 
-btnMix.addEventListener('click', () => {
-    sectionMix.style.display = 'block';
-    sectionGig.style.display = 'none';
-    sectionTitle.innerText = "Upload New Mix";
-    btnMix.classList.add('active');
-    btnGig.classList.remove('active');
-});
+if (btnMix && btnGig) {
+    btnMix.addEventListener('click', () => {
+        sectionMix.style.display = 'block';
+        sectionGig.style.display = 'none';
+        sectionTitle.innerText = "Upload New Mix";
+        btnMix.classList.add('active');
+        btnGig.classList.remove('active');
+    });
 
-btnGig.addEventListener('click', () => {
-    sectionMix.style.display = 'none';
-    sectionGig.style.display = 'block';
-    sectionTitle.innerText = "Add Upcoming Gig";
-    btnGig.classList.add('active');
-    btnMix.classList.remove('active');
-});
+    btnGig.addEventListener('click', () => {
+        sectionMix.style.display = 'none';
+        sectionGig.style.display = 'block';
+        sectionTitle.innerText = "Add Upcoming Gig";
+        btnGig.classList.add('active');
+        btnMix.classList.remove('active');
+    });
+}
 
-// --- 2. UPLOAD MIX LOGIC ---
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// --- 2. UPLOAD MIX LOGIC (FIXED) ---
+const uploadForm = document.getElementById('uploadForm');
 
-    const title = document.getElementById('mixTitle').value;
-    const desc = document.getElementById('mixDesc').value;
-    const audioInput = document.getElementById('mixFile');
-    const imageInput = document.getElementById('mixCover');
-    const submitBtn = document.querySelector('#uploadForm button');
+if (uploadForm) {
+    uploadForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // Show loading state
-    const originalText = submitBtn.innerText;
-    submitBtn.innerText = "⏳ Connecting to Server...";
-    submitBtn.disabled = true;
+        const title = document.getElementById('mixTitle').value;
+        const desc = document.getElementById('mixDesc').value;
+        const audioInput = document.getElementById('mixFile');
+        const imageInput = document.getElementById('mixCover');
+        const submitBtn = document.querySelector('#uploadForm button');
 
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', desc);
-    
-    if (audioInput.files[0]) {
-        formData.append('audio', audioInput.files[0]);
-    }
-    if (imageInput.files[0]) {
-        formData.append('cover', imageInput.files[0]);
-    }
+        // Show loading state
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = "⏳ Uploading...";
+        submitBtn.disabled = true;
 
-    try {
-        // USE THE FULL URL HERE
-        const response = await fetch(`${API_URL}/api/mixes`, {
-            method: 'POST',
-            body: formData
-        });
-
-        if (response.ok) {
-            alert("✅ Success! Mix Uploaded to Database.");
-            document.getElementById('uploadForm').reset();
-        } else {
-            const errorData = await response.json();
-            alert("❌ Upload Failed: " + (errorData.error || "Unknown Error"));
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', desc);
+        
+        // ➤ FIX 1: Using 'audioFile' to match Server
+        if (audioInput.files[0]) {
+            formData.append('audioFile', audioInput.files[0]);
         }
-    } catch (error) {
-        console.error(error);
-        alert("❌ Error: Could not reach the server at Port 5000. Is the terminal running?");
-    }
+        // ➤ FIX 2: Using 'imageFile' to match Server
+        if (imageInput.files[0]) {
+            formData.append('imageFile', imageInput.files[0]);
+        }
 
-    // Reset button
-    submitBtn.innerText = originalText;
-    submitBtn.disabled = false;
-});
+        try {
+            const response = await fetch(`${API_URL}/api/mixes`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert("✅ Success! Mix Uploaded to Database.");
+                uploadForm.reset();
+            } else {
+                const errorData = await response.json();
+                alert("❌ Upload Failed: " + (errorData.error || "Unknown Error"));
+            }
+        } catch (error) {
+            console.error(error);
+            alert("❌ Error: Could not reach the server at Port 5000. Is the terminal running?");
+        }
+
+        // Reset button
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
+    });
+}
 
 // --- 3. UPLOAD GIG LOGIC ---
-document.getElementById('gigForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const inputs = document.querySelectorAll('#gigForm input');
+const gigForm = document.getElementById('gigForm');
 
-    const gigData = {
-        date: inputs[0].value,
-        venue: inputs[1].value,
-        location: inputs[2].value,
-        ticketLink: inputs[3].value || '#'
-    };
+if (gigForm) {
+    gigForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const inputs = gigForm.querySelectorAll('input');
 
-    try {
-        // USE THE FULL URL HERE
-        const response = await fetch(`${API_URL}/api/gigs`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(gigData)
-        });
+        const gigData = {
+            date: inputs[0].value,
+            venue: inputs[1].value,
+            location: inputs[2].value,
+            ticketLink: inputs[3].value || '#'
+        };
 
-        if (response.ok) {
-            alert("✅ Gig Added Successfully!");
-            document.getElementById('gigForm').reset();
-        } else {
-            alert("❌ Error adding gig.");
+        try {
+            const response = await fetch(`${API_URL}/api/gigs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gigData)
+            });
+
+            if (response.ok) {
+                alert("✅ Gig Added Successfully!");
+                gigForm.reset();
+            } else {
+                alert("❌ Error adding gig.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("❌ Connection Failed.");
         }
-    } catch (error) {
-        console.error(error);
-        alert("❌ Connection Failed.");
-    }
-});
+    });
+}

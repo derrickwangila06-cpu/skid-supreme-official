@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DJ SKID SUPREME | OFFICIAL 2026 HUB</title>
+    <title>DJ SKID SUPREME | OFFICIAL HUB</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,8 +13,8 @@
         <div class="logo">DJ SKID <span class="highlight">SUPREME</span></div>
         <nav>
             <a href="#" class="active">Home</a>
-            <a href="#mix-feed">Mixes</a>
-            <a href="#events">Gigs</a>
+            <a href="#mix-section">Mixes</a>
+            <a href="#gig-section">Gigs</a>
             <a href="#booking">Bookings</a>
             <a href="admin.html" class="admin-link"><i class="fas fa-lock"></i> Admin</a>
         </nav>
@@ -25,22 +25,30 @@
         <div class="hero-content">
             <p class="subtitle">The Official Audio Experience</p>
             <h1 class="glitch" data-text="SKID THE SUPREME">SKID THE SUPREME</h1>
-            <a href="#mix-feed" class="cta-btn">Explore The Crates</a>
+            <a href="#mix-section" class="cta-btn">Explore The Crates</a>
         </div>
     </section>
 
     <div id="loading">
-        <div class="equalizer"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+        <div class="equalizer">
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        </div>
         <p>Loading High-Fidelity Audio...</p>
     </div>
 
-    <div class="feed-container" id="mix-feed"></div>
+    <section id="mix-section" style="padding: 50px 20px;">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 40px;">Latest <span class="highlight">Drops</span></h2>
+        
+        <div class="feed-container" id="mix-container">
+            </div>
+    </section>
 
-    <section id="events" class="events-section">
+    <section id="gig-section" class="events-section">
         <div class="booking-content">
             <h2 class="section-title">Upcoming <span class="highlight">Gigs</span></h2>
             <p style="color:#888; margin-bottom: 30px;">Catch the Supreme Sound Live.</p>
-            <div id="events-list" class="events-list">
+            
+            <div id="gig-container" class="events-list">
                 <p style="color:#666;">Loading dates...</p>
             </div>
         </div>
@@ -83,28 +91,24 @@
             
             <div class="social-hub">
                 <a href="https://www.tiktok.com/@djskidsupreme" target="_blank" class="social-icon tiktok">
-                    <i class="fab fa-tiktok"></i><span class="tooltip">TikTok</span>
+                    <i class="fab fa-tiktok"></i>
                 </a>
-
                 <a href="https://www.instagram.com/djskidsupreme" target="_blank" class="social-icon insta">
-                    <i class="fab fa-instagram"></i><span class="tooltip">Instagram</span>
+                    <i class="fab fa-instagram"></i>
                 </a>
-
                 <a href="https://hearthis.at/djskidsupreme/" target="_blank" class="social-icon hearthis">
-                    <i class="fas fa-compact-disc"></i><span class="tooltip">Hearthis.at</span>
+                    <i class="fas fa-compact-disc"></i>
                 </a>
-
                 <a href="https://www.youtube.com/results?search_query=dj+skid+supreme" target="_blank" class="social-icon youtube">
-                    <i class="fab fa-youtube"></i><span class="tooltip">YouTube</span>
+                    <i class="fab fa-youtube"></i>
                 </a>
-
                 <a href="mailto:skidgnius@gmail.com" class="social-icon email">
-                    <i class="fas fa-envelope"></i><span class="tooltip">Email Me</span>
+                    <i class="fas fa-envelope"></i>
                 </a>
             </div>
 
             <div class="copyright">
-                <p>&copy; 2025 DJ SKID THE SUPREME. All Rights Reserved.</p>
+                <p>&copy; 2026 DJ SKID THE SUPREME. All Rights Reserved.</p>
             </div>
         </div>
     </footer>
@@ -112,22 +116,27 @@
     <footer id="master-player" class="player-hidden">
         <div class="player-content">
             <div class="track-info">
-                <img id="player-img" src="" alt="Cover">
+                <img id="player-img" src="assets/logo.jpg" alt="Cover">
                 <div class="text-group">
                     <h4 id="player-title">Select a Mix</h4>
                     <p id="player-desc">DJ Skid The Supreme</p>
                 </div>
             </div>
+            
             <div class="controls">
                 <button id="prevBtn"><i class="fas fa-step-backward"></i></button>
                 <button id="playBtn" class="play-circle"><i class="fas fa-play"></i></button>
                 <button id="nextBtn"><i class="fas fa-step-forward"></i></button>
             </div>
+            
             <div class="progress-container">
                 <span id="currTime">0:00</span>
                 <input type="range" id="progressBar" value="0">
             </div>
-            <a id="downloadLink" href="#" class="download-icon" download><i class="fas fa-download"></i></a>
+            
+            <a id="downloadLink" href="#" class="download-icon" download>
+                <i class="fas fa-download"></i>
+            </a>
         </div>
         <audio id="main-audio"></audio>
     </footer>
